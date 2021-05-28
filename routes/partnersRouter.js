@@ -1,6 +1,7 @@
 const express = require('express');
 const partnersRouter = express.Router();
 const Partner = require('../models/partner');
+const authenticate = require('../authenticate');
 
 partnersRouter.route('/')
 .get((req, res, next) => {
@@ -12,7 +13,7 @@ partnersRouter.route('/')
     })
     .catch(err => next(err))
 })
-.post((req, res) => {
+.post(authenticate.verifyUser, (req, res) => {
     Partner.create(req.body)
     .then(partner => {
         console.log('Campsite Created ', partner);
@@ -22,11 +23,11 @@ partnersRouter.route('/')
     })
     .catch(err => next(err));
 })
-.put((req, res) => {
+.put(authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
     res.end('PUT operation not supported on /partners')
 })
-.delete((req, res) => {
+.delete(authenticate.verifyUser, (req, res) => {
     Partner.deleteMany()
     .then(response => {
         res.statusCode = 200;
@@ -46,11 +47,11 @@ partnersRouter.route('/:partnerId')
     })
     .catch(err => next(err));
 })
-.post((req, res) => {
+.post(authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
     res.end(`POST operation not supported on /partners/${req.params.partnerId}`)
 })
-.put((req, res) => {
+.put(authenticate.verifyUser, (req, res) => {
     Partner.findByIdAndUpdate(req.params.partnerId, {
         $set: req.body
     }, { new: true })
@@ -61,7 +62,7 @@ partnersRouter.route('/:partnerId')
     })
     .catch(err => next(err));
 })
-.delete((req, res) => {
+.delete(authenticate.verifyUser, (req, res) => {
     Partner.findByIdAndDelete(req.params.partnerId)
     .then(response => {
         res.statusCode = 200;
